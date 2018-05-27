@@ -1,5 +1,6 @@
 # inetutils4j
-Helper classes for internet related operations.
+Helper classes for internet related operations, like proxy settings and 
+downloading files.
 
 ## API
 
