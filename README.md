@@ -98,3 +98,9 @@ Add the following artifact to your dependencies of your `pom.xml`:
       <version>0.0.1</version>
     </dependency>
 ```
+
+## Releases
+
+The following releases are available:
+
+* [0.0.1](https://github.com/fracpete/inetutils4j/releases/download/inetutils4j-0.0.1/inetutils4j-0.0.1-spring-boot.jar)
