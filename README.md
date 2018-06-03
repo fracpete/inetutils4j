@@ -65,7 +65,7 @@ System.err.println("An error occurred:\n" + msg);
 ### Downloading binary data
 
 The `binaryContent` method of the `com.github.fracpete.inetutils4j.api.Internet`
-class performs the download of a remote resources. Whether you want to capture any output
+class performs the download of a remote resource. Whether you want to capture any output
 from running it in verbose, is handled by an instance of 
 `com.github.fracpete.inetutils4j.core.OutputCapture`. Use `NullCapture`
 to avoid any output or `DefaultCapture` to simply output to stdout/stderr.
@@ -90,7 +90,7 @@ else
 ### Downloading textual data
 
 The `textualContent` method of the `com.github.fracpete.inetutils4j.api.Internet`
-class performs the download of a remote resources. Whether you want to capture any output
+class performs the download of a remote resource. Whether you want to capture any output
 from running it in verbose, is handled by an instance of 
 `com.github.fracpete.inetutils4j.core.OutputCapture`. Use `NullCapture`
 to avoid any output or `DefaultCapture` to simply output to stdout/stderr.
