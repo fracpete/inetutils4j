@@ -61,6 +61,58 @@ System.err.println("An error occurred:\n" + msg);
 
 **NB:** The `download` method automatically handles redirects.
 
+
+### Downloading binary data
+
+The `binaryContent` method of the `com.github.fracpete.inetutils4j.api.Internet`
+class performs the download of a remote resources. Whether you want to capture any output
+from running it in verbose, is handled by an instance of 
+`com.github.fracpete.inetutils4j.core.OutputCapture`. Use `NullCapture`
+to avoid any output or `DefaultCapture` to simply output to stdout/stderr.
+
+```java
+import com.github.fracpete.inetutils4j.api.Internet;
+import com.github.fracpete.inetutils4j.core.DefaultCapture;
+...
+byte[] data = Internet.binaryContent(
+  "http://myserver.example.com/myfile.txt",
+  true,
+  new DefaultCapture());
+if (data == null)
+  System.err.println("An error occurred!");
+else
+  System.out.println(data.length + " bytes downloaded");
+```
+
+**NB:** The `binaryContent` method automatically handles redirects.
+
+
+### Downloading textual data
+
+The `textualContent` method of the `com.github.fracpete.inetutils4j.api.Internet`
+class performs the download of a remote resources. Whether you want to capture any output
+from running it in verbose, is handled by an instance of 
+`com.github.fracpete.inetutils4j.core.OutputCapture`. Use `NullCapture`
+to avoid any output or `DefaultCapture` to simply output to stdout/stderr.
+
+```java
+import com.github.fracpete.inetutils4j.api.Internet;
+import com.github.fracpete.inetutils4j.core.DefaultCapture;
+...
+String html = Internet.textualContent(
+  "http://myserver.example.com/myfile.txt",
+  "ISO-8859-1",
+  true,
+  new DefaultCapture());
+if (html == null)
+  System.err.println("An error occurred!");
+else
+  System.out.println(html);
+```
+
+**NB:** The `textualContent` method automatically handles redirects.
+
+
 ## Command-line tools
 
 ### Download
@@ -96,7 +148,7 @@ Add the following artifact to your dependencies of your `pom.xml`:
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>inetutils4j</artifactId>
-      <version>0.0.1</version>
+      <version>0.0.2</version>
     </dependency>
 ```
 
@@ -104,4 +156,5 @@ Add the following artifact to your dependencies of your `pom.xml`:
 
 The following releases are available:
 
+* [0.0.2](https://github.com/fracpete/inetutils4j/releases/download/inetutils4j-0.0.2/inetutils4j-0.0.2-spring-boot.jar)
 * [0.0.1](https://github.com/fracpete/inetutils4j/releases/download/inetutils4j-0.0.1/inetutils4j-0.0.1-spring-boot.jar)

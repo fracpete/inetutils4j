@@ -25,6 +25,7 @@ import com.github.fracpete.inetutils4j.core.Utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -112,6 +113,41 @@ public class Internet {
   }
 
   /**
+   * Copies the data from input stream to output stream. Does not close the streams.
+   *
+   * @param input	the input stream to read from
+   * @param output 	the output stream to write to
+   * @param verbose	whether to output some progress information
+   * @param capture 	for capturing the output
+   * @throws Exception	if transfer of data fails
+   */
+  protected static void copy(BufferedInputStream input, BufferedOutputStream output, boolean verbose, OutputCapture capture) throws Exception {
+    byte[]		buffer;
+    int			len;
+    int			count;
+    int 		size;
+    DecimalFormat 	dformat;
+
+    dformat  = new DecimalFormat("###,###.###");
+    buffer = new byte[1024];
+    count  = 0;
+    size   = 0;
+    while ((len = input.read(buffer)) > 0) {
+      count++;
+      size += len;
+      output.write(buffer, 0, len);
+      if (count % 100 == 0) {
+	output.flush();
+	if (verbose)
+	  capture.println(dformat.format((double) size / 1024.0) + "KB", true);
+      }
+    }
+    output.flush();
+    if (verbose)
+      capture.println(dformat.format((double) size / 1024.0) + "KB", true);
+  }
+
+  /**
    * Downloads a file.
    *
    * @param remote	the URL to download
@@ -126,17 +162,11 @@ public class Internet {
     BufferedInputStream 	input;
     BufferedOutputStream 	output;
     FileOutputStream 		fos;
-    byte[]			buffer;
-    int				len;
-    int				count;
-    int 			size;
     URLConnection 		conn;
-    DecimalFormat 		dformat;
 
-    input    = null;
-    output   = null;
-    fos      = null;
-    dformat  = new DecimalFormat("###,###.###");
+    input  = null;
+    output = null;
+    fos    = null;
     if (verbose)
       capture.println("Downloading: " + remote + " to " + local, true);
     try {
@@ -145,33 +175,87 @@ public class Internet {
       input  = new BufferedInputStream(conn.getInputStream());
       fos    = new FileOutputStream(new File(local));
       output = new BufferedOutputStream(fos);
-      buffer = new byte[1024];
-      count  = 0;
-      size   = 0;
-      while ((len = input.read(buffer)) > 0) {
-	count++;
-	size += len;
-	output.write(buffer, 0, len);
-	if (count % 100 == 0) {
-	  output.flush();
-	  if (verbose)
-	    capture.println(dformat.format((double) size / 1024.0) + "KB", true);
-	}
-      }
-      output.flush();
-      if (verbose)
-	capture.println(dformat.format((double) size / 1024.0) + "KB", true);
-
+      copy(input, output, verbose, capture);
       result = null;
     }
     catch (Exception e) {
       result = "Problem downloading '" + remote + "' to '" + local + "':\n"
 	+ Utils.throwableToString(e);
+      capture.println("Problem downloading '" + remote + "' to '" + local + "'!", e);
     }
     finally {
       Utils.closeQuietly(input);
       Utils.closeQuietly(output);
       Utils.closeQuietly(fos);
+    }
+
+    return result;
+  }
+
+  /**
+   * Downloads a URL and returns the binary data received.
+   *
+   * @param remote	the URL to download
+   * @param verbose	whether to output some progress information
+   * @param capture 	for capturing the output
+   * @return		null if failed, otherwise the binary data
+   */
+  public static byte[] binaryContent(String remote, boolean verbose, OutputCapture capture) {
+    URL 			url;
+    BufferedInputStream 	input;
+    BufferedOutputStream 	output;
+    ByteArrayOutputStream 	bos;
+    URLConnection 		conn;
+
+    input  = null;
+    output = null;
+    bos    = null;
+    if (verbose)
+      capture.println("Retrieving content: " + remote, true);
+    try {
+      url    = new URL(remote);
+      conn   = getConnection(url);
+      input  = new BufferedInputStream(conn.getInputStream());
+      bos    = new ByteArrayOutputStream();
+      output = new BufferedOutputStream(bos);
+      copy(input, output, verbose, capture);
+    }
+    catch (Exception e) {
+      capture.println("Problem downloading content: " + remote + "!", e);
+    }
+    finally {
+      Utils.closeQuietly(input);
+      Utils.closeQuietly(output);
+    }
+
+    if (bos != null)
+      return bos.toByteArray();
+    else
+      return null;
+  }
+
+  /**
+   * Downloads a URL and returns the textual data received.
+   *
+   * @param remote	the URL to download
+   * @param encoding	the encoding to use, eg "UTF-8" or "ISO-8859-1" (= Latin 1)
+   * @param verbose	whether to output some progress information
+   * @param capture 	for capturing the output
+   * @return		null if failed, otherwise the textual content
+   */
+  public static String textualContent(String remote, String encoding, boolean verbose, OutputCapture capture) {
+    String	result;
+    byte[]	data;
+
+    result = null;
+    data   = binaryContent(remote, verbose, capture);
+    if (data != null) {
+      try {
+	result = new String(data, encoding);
+      }
+      catch (Exception e) {
+        capture.println("Failed to generate string from binary data using encoding: " + encoding, e);
+      }
     }
 
     return result;
