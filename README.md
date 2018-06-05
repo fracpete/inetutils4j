@@ -56,7 +56,8 @@ String msg = Internet.download(
   "/home/user/myfile.txt",
   true,
   new DefaultCapture());
-System.err.println("An error occurred:\n" + msg);
+if (msg != null)
+  System.err.println("An error occurred:\n" + msg);
 ```
 
 **NB:** The `download` method automatically handles redirects.
